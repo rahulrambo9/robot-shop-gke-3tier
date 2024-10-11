@@ -23,14 +23,22 @@ ingress:
   enabled: true
   name: robot-shop-ingress  # Custom name for the Ingress
   namespace: robot-shop     # Specify the namespace for the Ingress
-  host: myapp.example.com   # Domain for your Ingress
-  ingressClassName: gce     # Specify the Ingress class
+  #host: myapp.example.com   # Domain for your Ingress
+  #ingressClassName: gce     # Specify the Ingress class
   annotations:              # Any additional annotations
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: "robot-shop-dev-static-ip"
+
+# For Google Managed SSL
+gcp:
+  managedSSL:
+    enabled: true
+    domains:
+      - dev.techstackflow.in
 
 
 # For the mini ones minikube, minishift set to true
-nodeport: false
+nodeport: true
 
 # "special" Openshift. Set to true when deploying to any openshift flavour
 openshift: false

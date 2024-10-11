@@ -17,3 +17,4 @@ spec:
     targetPort: 4369
   selector:
     service: rabbitmq
+  type: NodePort  
