@@ -28,8 +28,11 @@ steps:
           fi
         done
 
-        # Convert the array to a string for later use
-        echo "SERVICES_TO_BUILD=${SERVICES_TO_BUILD[*]}" >> $BASH_ENV
+        # Convert the array to a space-separated string for later use
+        SERVICES_TO_BUILD_STRING="${SERVICES_TO_BUILD[*]}"
+        
+        # Store the services to build in an environment variable
+        echo "SERVICES_TO_BUILD=${SERVICES_TO_BUILD_STRING}" >> $BASH_ENV
 
   # Step 2: Build Docker images for the changed services
   - name: 'gcr.io/cloud-builders/docker'
@@ -40,7 +43,11 @@ steps:
       - |
         # Load the services to build from the environment
         source $BASH_ENV
-        for IMAGE_NAME in ${SERVICES_TO_BUILD}; do
+        if [ -z "$SERVICES_TO_BUILD" ]; then
+          echo "No services to build."
+          exit 0
+        fi
+        for IMAGE_NAME in $SERVICES_TO_BUILD; do
           echo "Building image for service: $IMAGE_NAME"
           docker build -t us-east1-docker.pkg.dev/proptuity-webapp/robot-shop-registry/${IMAGE_NAME}:dev --file=${IMAGE_NAME}/Dockerfile ${IMAGE_NAME}
         done
@@ -54,7 +61,11 @@ steps:
       - |
         # Load the services to build from the environment
         source $BASH_ENV
-        for IMAGE_NAME in ${SERVICES_TO_BUILD}; do
+        if [ -z "$SERVICES_TO_BUILD" ]; then
+          echo "No services to push."
+          exit 0
+        fi
+        for IMAGE_NAME in $SERVICES_TO_BUILD; do
           echo "Pushing image for service: $IMAGE_NAME"
           docker push us-east1-docker.pkg.dev/proptuity-webapp/robot-shop-registry/${IMAGE_NAME}:dev
         done
