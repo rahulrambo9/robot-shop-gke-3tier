@@ -1,19 +1,17 @@
-FROM golang:1.20
+FROM golang:1.22
 
-# Set the working directory
 WORKDIR /go/src/app
 
-# Copy all Go files to the working directory
-COPY *.go ./
+COPY *.go .
 
-# Initialize the Go module with a proper module name
-RUN go mod init github.com/rahulrambo9/dispatch
+# Initialize the module
+RUN go mod init dispatch || { echo 'go mod init failed'; exit 1; }
 
-# Get dependencies
-RUN go mod tidy
+# Install dependencies
+RUN go get || { echo 'go get failed'; exit 1; }
 
 # Build the application
-RUN go build -o dispatch
+RUN go build -o dispatch || { echo 'go build failed'; exit 1; }
 
 # Command to run the application
 CMD ["./dispatch"]
