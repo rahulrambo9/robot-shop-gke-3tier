@@ -1,6 +1,6 @@
 substitutions:
   _SERVICE_NAME: 'cart'  # Default service name if not overridden in the trigger
-  _TIMESTAMP: "$(date +%Y%m%d%H%M%S)"
+
 steps:
   # Step 1: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
