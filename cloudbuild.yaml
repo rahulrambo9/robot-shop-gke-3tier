@@ -1,0 +1,59 @@
+steps:
+  # Step 1: Fetch the changes
+  - name: 'gcr.io/cloud-builders/git'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        # Fetch all branches
+        git fetch --all
+        # Get the list of changed directories
+        CHANGED_DIRS=$(git diff --name-only $COMMIT_SHA $PREVIOUS_COMMIT_SHA | awk -F '/' '{print $1}' | sort -u)
+
+        echo "Changed directories: $CHANGED_DIRS"
+        
+        # Initialize an empty array to hold the services to build
+        SERVICES_TO_BUILD=()
+
+        for DIR in $CHANGED_DIRS; do
+          if [[ "$DIR" == "cart" ]]; then
+            SERVICES_TO_BUILD+=("cart")
+          elif [[ "$DIR" == "payment" ]]; then
+            SERVICES_TO_BUILD+=("payment")
+          elif [[ "$DIR" == "shipping" ]]; then
+            SERVICES_TO_BUILD+=("shipping")
+          elif [[ "$DIR" == "catalogue" ]]; then
+            SERVICES_TO_BUILD+=("catalogue")
+          fi
+        done
+
+        # Convert the array to a string for later use
+        echo "Services to build: ${SERVICES_TO_BUILD[*]}"
+        echo "SERVICES_TO_BUILD=${SERVICES_TO_BUILD[*]}" >> $GITHUB_ENV
+
+  # Step 2: Build Docker images for the changed services
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        for IMAGE_NAME in ${SERVICES_TO_BUILD}; do
+          echo "Building image for service: $IMAGE_NAME"
+          docker build -t us-east1-docker.pkg.dev/proptuity-webapp/robot-shop-registry/${IMAGE_NAME}:dev --file=${IMAGE_NAME}/Dockerfile ${IMAGE_NAME}
+        done
+
+  # Step 3: Push Docker images to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        for IMAGE_NAME in ${SERVICES_TO_BUILD}; do
+          echo "Pushing image for service: $IMAGE_NAME"
+          docker push us-east1-docker.pkg.dev/proptuity-webapp/robot-shop-registry/${IMAGE_NAME}:dev
+        done
+
+# Optional: Define the timeout
+timeout: '1200s'  # Adjust as necessary
