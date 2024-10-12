@@ -5,14 +5,11 @@ steps:
     args:
       - '-c'
       - |
-        # Fetch all branches
         git fetch --all
-        # Get the list of changed directories
         CHANGED_DIRS=$(git diff --name-only $COMMIT_SHA $PREVIOUS_COMMIT_SHA | awk -F '/' '{print $1}' | sort -u)
 
         echo "Changed directories: $CHANGED_DIRS"
         
-        # Initialize an empty array to hold the services to build
         SERVICES_TO_BUILD=()
 
         for DIR in $CHANGED_DIRS; do
@@ -27,7 +24,6 @@ steps:
           fi
         done
 
-        # Convert the array to a string for later use
         echo "Services to build: ${SERVICES_TO_BUILD[*]}"
         echo "SERVICES_TO_BUILD=${SERVICES_TO_BUILD[*]}" >> $GITHUB_ENV
 
@@ -55,5 +51,7 @@ steps:
           docker push us-east1-docker.pkg.dev/proptuity-webapp/robot-shop-registry/${IMAGE_NAME}:dev
         done
 
-# Optional: Define the timeout
-timeout: '1200s'  # Adjust as necessary
+options:
+  logging: CLOUD_LOGGING_ONLY  # or specify logs_bucket as shown earlier
+
+timeout: '1200s'
