@@ -8,7 +8,7 @@ steps:
     args:
       - 'build'
       - '-t'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}:$SHORT_SHA'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}:$(date +%Y%m%d%H%M%S)'
       - './${_SERVICE_NAME}'
 
   # Step 2: Push the Docker image to Artifact Registry
@@ -16,7 +16,7 @@ steps:
     id: Push
     args:
       - 'push'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}:$SHORT_SHA'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}:$(date +%Y%m%d%H%M%S)'
 
 options:
   logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error
