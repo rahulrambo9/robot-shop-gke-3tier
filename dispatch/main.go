@@ -44,7 +44,7 @@ func connectToRabbitMQ(uri string) *amqp.Connection {
 		}
 
 		log.Println(err)
-		log.Printf("Reconnecting to %s\n", uri)
+		log.Printf("Reconnecting foram to %s\n", uri)
 		time.Sleep(1 * time.Second)
 	}
 }
