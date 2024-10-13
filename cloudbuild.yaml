@@ -1,9 +1,5 @@
-substitutions:
-  _SERVICE_NAME: 'cart'  # Default service name if not overridden in the trigger
-  _ENV_NAME: 'dev'
-
 steps:
-  # Step 1: Read the current version from version.txt
+  # Step 1: Read or initialize the version from version.txt
   - name: 'ubuntu'
     id: ReadVersion
     entrypoint: 'bash'
@@ -15,6 +11,7 @@ steps:
         fi
         VERSION=$(cat version.txt)
         echo "VERSION=${VERSION}" > /workspace/version.env
+        echo "Current version: $VERSION"
 
   # Step 2: Increment the version
   - name: 'ubuntu'
@@ -23,32 +20,14 @@ steps:
     args:
       - '-c'
       - |
-        # Read the current version
         current_version=$(cat version.txt)
-        # Increment the version (simple example)
-        new_version=$(echo "$current_version" | awk -F. -v OFS=. '{$NF++;print}')
-        # Update version.txt
+        echo "Current version before increment: $current_version"
+        # Simple version increment logic
+        IFS='.' read -r major minor patch <<< "$current_version"
+        patch=$((patch + 1))
+        new_version="$major.$minor.$patch"
         echo "$new_version" > version.txt
-
-  # Step 3: Build the Docker image using the updated version
-  - name: 'gcr.io/cloud-builders/docker'
-    id: Build
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        source /workspace/version.env
-        docker build -t us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION} ./${_SERVICE_NAME}
-
-  # Step 4: Push the Docker image to Artifact Registry
-  - name: 'gcr.io/cloud-builders/docker'
-    id: Push
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        source /workspace/version.env
-        docker push us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION}
+        echo "New version after increment: $new_version"
 
 options:
   logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error
