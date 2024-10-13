@@ -13,21 +13,6 @@ steps:
         echo "VERSION=${VERSION}" > /workspace/version.env
         echo "Current version: $VERSION"
 
-  # Step 2: Increment the version
-  - name: 'ubuntu'
-    id: IncrementVersion
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        current_version=$(cat version.txt)
-        echo "Current version before increment: $current_version"
-        # Simple version increment logic
-        IFS='.' read -r major minor patch <<< "$current_version"
-        patch=$((patch + 1))
-        new_version="$major.$minor.$patch"
-        echo "$new_version" > version.txt
-        echo "New version after increment: $new_version"
 
 options:
   logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error
