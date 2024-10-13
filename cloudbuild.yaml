@@ -1,22 +1,39 @@
 substitutions:
   _SERVICE_NAME: 'cart'  # Default service name if not overridden in the trigger
   _ENV_NAME: 'dev'
+  
 steps:
-  # Step 1: Build the Docker image
+  # Step 1: Increment the version
+  - name: 'ubuntu'
+    id: IncrementVersion
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - './increment_version.sh'
+
+  # Step 2: Read the version from the version file
+  - name: 'gcr.io/cloud-builders/docker'
+    id: SetVersion
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'echo "VERSION=$(cat version.txt)" > /workspace/version.env'
+
+  # Step 3: Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
     id: Build
     args:
       - 'build'
       - '-t'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$SHORT_SHA'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION}'
       - './${_SERVICE_NAME}'
 
-  # Step 2: Push the Docker image to Artifact Registry
+  # Step 4: Push the Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: Push
     args:
       - 'push'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$SHORT_SHA'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION}'
 
 options:
   logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error

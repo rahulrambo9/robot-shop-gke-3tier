@@ -1,0 +1,25 @@
+substitutions:
+  _SERVICE_NAME: 'cart'  # Default service name if not overridden in the trigger
+  _ENV_NAME: 'dev'
+steps:
+  # Step 1: Build the Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - 'build'
+      - '-t'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$SHORT_SHA'
+      - './${_SERVICE_NAME}'
+
+  # Step 2: Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - 'push'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$SHORT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error
+
+# Optional: Specify a timeout
+timeout: '1200s'  # Adjust the timeout as needed
