@@ -48,6 +48,9 @@ steps:
     args:
       - 'push'
       - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$(cat version.txt)'
+options:
+  logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error
+
 
 images:
   - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$(cat version.txt)'
