@@ -11,7 +11,7 @@ steps:
       - '-c'
       - './increment_version.sh'
 
-  # Step 2: Read the version from the version file
+  # Step 2: Read the version from the version file and export it
   - name: 'ubuntu'
     id: SetVersion
     entrypoint: 'bash'
@@ -19,7 +19,7 @@ steps:
       - '-c'
       - |
         VERSION=$(cat version.txt)
-        echo "VERSION=${VERSION}" >> /workspace/version.env
+        echo "VERSION=${VERSION}" >> $BASH_ENV
 
   # Step 3: Build the Docker image using the updated version
   - name: 'gcr.io/cloud-builders/docker'
@@ -28,7 +28,6 @@ steps:
     args:
       - '-c'
       - |
-        source /workspace/version.env
         docker build -t us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION} ./${_SERVICE_NAME}
 
   # Step 4: Push the Docker image to Artifact Registry
@@ -38,7 +37,6 @@ steps:
     args:
       - '-c'
       - |
-        source /workspace/version.env
         docker push us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION}
 
 options:
