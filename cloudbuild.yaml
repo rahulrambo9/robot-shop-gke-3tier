@@ -1,3 +1,10 @@
+substitutions:
+  _SERVICE_NAME: 'cart'  # Default service name if not overridden in the trigger
+  _ENV_NAME: 'dev'
+
+options:
+  automapSubstitutions: true  # Automatically map all substitutions to environment variables
+
 steps:
   # Step 1: Read or initialize the version from version.txt
   - name: 'ubuntu'
@@ -10,12 +17,37 @@ steps:
           echo "v1" > version.txt  # Initialize version if file does not exist
         fi
         VERSION=$(cat version.txt)
-        echo "VERSION=${VERSION}" > /workspace/version.env
         echo "Current version: $VERSION"
 
+  # Step 2: Increment the version
+  - name: 'ubuntu'
+    id: IncrementVersion
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        current_version=$(cat version.txt)
+        IFS='.' read -r major minor patch <<< "$current_version"
+        patch=$((patch + 1))
+        new_version="$major.$minor.$patch"
+        echo "$new_version" > version.txt
+        echo "New version after increment: $new_version"
 
-options:
-  logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error
+  # Step 3: Build the Docker image using the updated version
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Build
+    args:
+      - 'build'
+      - '-t'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$(cat version.txt)'
+      - './${_SERVICE_NAME}'
 
-# Optional: Specify a timeout
-timeout: '1200s'  # Adjust the timeout as needed
+  # Step 4: Push the Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: Push
+    args:
+      - 'push'
+      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$(cat version.txt)'
+
+images:
+  - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$(cat version.txt)'
