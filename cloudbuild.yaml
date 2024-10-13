@@ -19,21 +19,25 @@ steps:
       - '-c'
       - 'echo "VERSION=$(cat version.txt)" > /workspace/version.env'
 
-  # Step 3: Build the Docker image
+  # Step 3: Build the Docker image using the updated version
   - name: 'gcr.io/cloud-builders/docker'
     id: Build
+    entrypoint: 'bash'
     args:
-      - 'build'
-      - '-t'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION}'
-      - './${_SERVICE_NAME}'
+      - '-c'
+      - |
+        source /workspace/version.env
+        docker build -t us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$VERSION ./${_SERVICE_NAME}
 
   # Step 4: Push the Docker image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: Push
+    entrypoint: 'bash'
     args:
-      - 'push'
-      - 'us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:${VERSION}'
+      - '-c'
+      - |
+        source /workspace/version.env
+        docker push us-east1-docker.pkg.dev/$PROJECT_ID/robot-shop-registry/${_SERVICE_NAME}-${_ENV_NAME}:$VERSION
 
 options:
   logging: CLOUD_LOGGING_ONLY  # Use this logging option to avoid the error
