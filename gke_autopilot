@@ -1,0 +1,20 @@
+
+For dev:
+
+Do not use HPA or disable it
+Do not opt for cloud logging, monitoring
+Do not opt for Kube DNS, other Adds-ons
+
+use "poddisruptionbudget" instead HPA in cloud
+
+
+Below  are expected billing for 1 pod:
+
+GKE autopilot vCPU-> 0.0445/hr
+
+eg. 1 ecommerce pod
+    1 CPU
+    1 GB RAM
+    24 * 7 week 
+
+    total month cost around 40$ for above consumption.

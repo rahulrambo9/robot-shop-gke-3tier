@@ -1,0 +1,3 @@
+Self service part:
+
+- Github repo and golang API to deploy which provides self service to buisness stakeholder to deploy kafka objects
