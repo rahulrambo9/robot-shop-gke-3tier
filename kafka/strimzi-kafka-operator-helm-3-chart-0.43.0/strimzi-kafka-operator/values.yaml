@@ -11,6 +11,13 @@ watchAnyNamespace: false
 defaultImageRegistry: quay.io
 defaultImageRepository: strimzi
 defaultImageTag: 0.43.0
+  
+  # Kraft-specific configuration
+kafka:
+  useKraft: true  # Set to true for Kraft, false for Zookeeper
+  clusterName: "rambo-kafka"
+  version: "3.8.0"
+
 
 image:
   registry: ""
