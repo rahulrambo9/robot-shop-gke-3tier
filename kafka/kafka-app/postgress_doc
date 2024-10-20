@@ -1,0 +1,109 @@
+Pulled: registry-1.docker.io/bitnamicharts/postgresql:16.0.3
+Digest: sha256:b25281ffa49c0d9928c60c4f1f067a5ce7d0dac969a54cb450661cf8d69fb7e7
+NAME: postgress
+LAST DEPLOYED: Sun Oct 20 17:36:35 2024
+NAMESPACE: postgress
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: postgresql
+CHART VERSION: 16.0.3
+APP VERSION: 17.0.0
+
+** Please be patient while the chart is being deployed **
+
+PostgreSQL can be accessed via port 5432 on the following DNS names from within your cluster:
+
+    postgress-postgresql.postgress.svc.cluster.local - Read/Write connection
+
+To get the password for "postgres" run:
+
+    export POSTGRES_PASSWORD=$(kubectl get secret --namespace postgress postgress-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d)
+
+echo $POSTGRES_PASSWORD
+UTtf7mWwiy
+
+To connect to your database run the following command:
+
+    kubectl run postgress-postgresql-client --rm --tty -i --restart='Never' --namespace postgress --image docker.io/bitnami/postgresql:17.0.0-debian-12-r3 --env="PGPASSWORD=$POSTGRES_PASSWORD" \
+      --command -- psql --host postgress-postgresql -U postgres -d postgres -p 5432
+
+    > NOTE: If you access the container using bash, make sure that you execute "/opt/bitnami/scripts/postgresql/entrypoint.sh /bin/bash" in order to avoid the error "psql: local user with ID 1001} does not exist"
+
+To connect to your database from outside the cluster execute the following commands:
+
+    kubectl port-forward --namespace postgress svc/postgress-postgresql 5432:5432 &
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+
+WARNING: The configured password will be ignored on new installation in case when previous PostgreSQL release was deleted through the helm command. In that case, old PVC will have an old password, and setting it through helm won't take effect. Deleting persistent volumes (PVs) will solve the issue.
+
+WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+  - primary.resources
+  - readReplicas.resources
++info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+-------------
+kubectl port-forward --namespace postgress svc/postgress-postgresql 5432:5432 &
+    PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d postgres -p 5432
+[2] 84235
+Handling connection for 5432
+psql (14.13 (Homebrew), server 17.0)
+WARNING: psql major version 14, server major version 17.
+         Some psql features might not work.
+Type "help" for help.
+
+postgres=# Unable to listen on port 5432: Listeners failed to create with the following errors: [unable to create listener: Error listen tcp4 127.0.0.1:5432: bind: address already in use unable to create listener: Error listen tcp6 [::1]:5432: bind: address already in use]
+error: unable to listen on any of the requested ports: [{5432 5432}]
+[2]  + exit 1     kubectl port-forward --namespace postgress svc/postgress-postgresql 5432:5432
+
+postgres=#
+postgres=#
+postgres=# \t
+Tuples only is on.
+postgres=#
+postgres=# \l
+ postgres  | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ template0 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+ template1 | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+           |          |          |             |             | postgres=CTc/postgres
+
+postgres=# CREATE DATABASE tic_tac_toe_db;
+CREATE DATABASE
+postgres=#
+postgres=# \l
+ postgres       | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+ template0      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                |          |          |             |             | postgres=CTc/postgres
+ template1      | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 | =c/postgres          +
+                |          |          |             |             | postgres=CTc/postgres
+ tic_tac_toe_db | postgres | UTF8     | en_US.UTF-8 | en_US.UTF-8 |
+
+postgres=# Handling connection for 5432
+
+------------------
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d tic_tac_toe_db -p 5432
+
+psql (14.13 (Homebrew), server 17.0)
+WARNING: psql major version 14, server major version 17.
+         Some psql features might not work.
+Type "help" for help.
+
+tic_tac_toe_db=#
+tic_tac_toe_db=# CREATE TABLE games (
+    id SERIAL PRIMARY KEY,
+    player1_name VARCHAR(50),
+    player2_name VARCHAR(50),
+    winner_name VARCHAR(50),
+    game_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE
+tic_tac_toe_db=# \dt
+         List of relations
+ Schema | Name  | Type  |  Owner
+--------+-------+-------+----------
+ public | games | table | postgres
+(1 row)
+
+---------------------------------
+

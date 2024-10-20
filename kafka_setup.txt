@@ -1,3 +1,37 @@
 Self service part:
 
 - Github repo and golang API to deploy which provides self service to buisness stakeholder to deploy kafka objects
+
+find topic name using kubectl:
+
+kubectl exec -it rambo-kraft-cluster-dual-role-0 -n kafka -- /opt/kafka/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+
+__consumer_offsets
+rambo-topic
+
+----------------------------------------
+
+kubectl exec -it rambo-kraft-cluster-dual-role-0 -n kafka -- /opt/kafka/bin/kafka-topics.sh --bootstrap-server 35.237.164.110:9092 --describe --topic rambo-topic
+
+kubectl exec -it rambo-kraft-cluster-dual-role-0 -n kafka -- /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server 35.237.164.110:9092 --describe --topic game-results
+
+─ kubectl exec -it rambo-kraft-cluster-dual-role-0 -n kafka -- /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server 35.237.164.110:9092 --list
+
+my-group
+╭─     ~/p/robot-shop-gke-3tier/k/strimzi-k/strimzi-kafka-operator     main !2 ?3 
+╰─ kubectl exec -it rambo-kraft-cluster-dual-role-0 -n kafka -- /opt/kafka/bin/kafka-consumer-groups.sh --bootstrap-server 35.237.164.110:9092 --describe --group my-group
+
+
+Consumer group 'my-group' has no active members.
+
+GROUP           TOPIC           PARTITION  CURRENT-OFFSET  LOG-END-OFFSET  LAG             CONSUMER-ID     HOST            CLIENT-ID
+my-group        rambo-topic     0          16              16              0
+
+kafka-consumer-groups.sh 
+
+
+------ How to check topic consume or process which data -----
+─ kubectl exec -it rambo-kraft-cluster-dual-role-0 -n kafka -- /opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server 35.237.164.110:9092 --topic game-results --from-beginning
+
+{"player1_name":"robert","player2_name":"julie","winner_name":"robert"}
+{"player1_name":"Rambo","player2_name":"Rock","winner_name":"Rambo"}

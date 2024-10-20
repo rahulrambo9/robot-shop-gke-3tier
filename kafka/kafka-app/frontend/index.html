@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kafka Message Sender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background-color: #e0e0e0;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Send Messages to Kafka</h1>
+    
+    <input type="text" id="customMessage" placeholder="Enter your custom message">
+    <button onclick="sendCustomMessage()">Send Custom Message</button>
+
+    <h2>Messages:</h2>
+    <ul id="messagesList"></ul>
+
+    <script>
+        function sendCustomMessage() {
+            const customMessage = document.getElementById('customMessage').value;
+            fetch('/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: customMessage })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                document.getElementById('customMessage').value = ''; // Clear input field
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Polling for messages (could be enhanced with WebSockets)
+        setInterval(() => {
+            fetch('/messages')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('messagesList');
+                    list.innerHTML = '';
+                    data.forEach(msg => {
+                        const li = document.createElement('li');
+                        li.textContent = msg;
+                        list.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error fetching messages:', error));
+        }, 3000);
+    </script>
+</body>
+</html>
