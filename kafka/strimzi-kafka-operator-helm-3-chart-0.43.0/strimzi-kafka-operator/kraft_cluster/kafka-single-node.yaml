@@ -44,8 +44,11 @@ spec:
     listeners:
       - name: plain
         port: 9092
-        type: internal
+        type: loadbalancer
         tls: false
+        configuration:
+          loadBalancerSourceRanges:
+            - 0.0.0.0/0  # Allow access from anywhere, adjust as necessary
       - name: tls
         port: 9093
         type: internal
