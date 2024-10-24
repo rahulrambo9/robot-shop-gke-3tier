@@ -1,6 +1,6 @@
 module tic-tac-toe
 
-go 1.23.2
+go 1.23
 
 require (
 	github.com/klauspost/compress v1.15.9 // indirect

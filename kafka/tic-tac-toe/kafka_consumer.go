@@ -20,7 +20,7 @@ type GameResult struct {
 
 // Connect to PostgreSQL with user, password, and dbname
 func connectDB() (*sql.DB, error) {
-    connStr := "user=postgres password=UTtf7mWwiy dbname=tic_tac_toe_db sslmode=disable"
+    connStr := "user=postgres password=UTtf7mWwiy host=host.docker.internal port=5432 dbname=tic_tac_toe_db sslmode=disable"
     return sql.Open("postgres", connStr)
 }
 
