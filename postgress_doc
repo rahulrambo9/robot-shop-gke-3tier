@@ -107,3 +107,36 @@ tic_tac_toe_db=# \dt
 
 ---------------------------------
 
+---- Getting below error when trying to run app using docker locally ------
+docker logs -f funny_dirac
+Server running on http://localhost:8080...
+Listening to Kafka topic: game-results
+2024/10/21 08:00:57 Error storing result in database: dial tcp 127.0.0.1:5432: connect: connection refused
+2024/10/21 08:00:57 Error storing result in database: dial tcp 127.0.0.1:5432: connect: connection refused
+2024/10/21 08:00:57 Error storing result in database: dial tcp 127.0.0.1:5432: connect: connection refused
+2024/10/21 08:00:57 Error storing result in database: dial tcp 127.0.0.1:5432: connect: connection refused
+2024/10/21 08:00:57 Error storing result in database: dial tcp 127.0.0.1:5432: connect: connection refused
+Game result published to Kafka: {zender cobra cobra}
+2024/10/21 08:01:25 Error storing result in database: dial tcp 127.0.0.1:5432: connect: connection refused
+exit
+
+-----
+
+1. port forward:
+kubectl port-forward --namespace postgress svc/postgress-postgresql 5432:5432
+
+2. check db accesing or not:
+PGPASSWORD="$POSTGRES_PASSWORD" psql --host 127.0.0.1 -U postgres -d tic_tac_toe_db -p 5432
+
+
+modified below host 
+if using docker container---> host=host.docker.internal
+if using local --> host=localhost
+
+
+
+// Connect to PostgreSQL with user, password, and dbname
+func connectDB() (*sql.DB, error) {
+    connStr := "user=postgres password=UTtf7mWwiy host=host.docker.internal port=5432 dbname=tic_tac_toe_db sslmode=disable"
+    return sql.Open("postgres", connStr)
+}
